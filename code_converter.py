@@ -15,7 +15,7 @@ import platform
 import subprocess
 import webbrowser
 import urllib.request
-from os import listdir
+
 from tkinter import Tk
 from functools import reduce
 from selenium import webdriver
