@@ -28,11 +28,11 @@ from markdownify import markdownify as md
 #%%
 # EXAMPLES
 examples_dict = {
-    'uwisc'     : ['A delightful review of some data analysis libraries, courtesy of University of Wisconsin',r'https://icecube.wisc.edu/~icecube-bootcamp/bootcamp2018/Bootcamp_Tutorial_Part4.html'],
+    'uwisc'     : ['A review of data analysis libraries, courtesy of University of Wisconsin',r'https://icecube.wisc.edu/~icecube-bootcamp/bootcamp2018/Bootcamp_Tutorial_Part4.html'],
     'howison'   : ['An FAQ on data wrangling',r'https://howisonlab.github.io/datawrangling/faq.html'],
     'remap'     : ["A rare explainer on recursive mapping using the 'remap' module from Python's boltons library",r"https://sedimental.org/remap.html"],
     'py2neo'    : ['An example case of using the py2neo driver for neo4j',r'https://notebooks.githubusercontent.com/view/ipynb?browser=chrome&color_mode=auto&commit=50d6f725a1c6c812bd1ab95dd1a02cff27f86997&device=unknown&enc_url=68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f6e756e656e75682f67726170682e64617461626173652f353064366637323561316336633831326264316162393564643161303263666632376638363939372f312e496e74726f64756374696f6e2e6970796e62&logged_in=false&nwo=nunenuh%2Fgraph.database&path=1.Introduction.ipynb&platform=android&repository_id=170560198&repository_type=Repository&version=100'],
-    'dfstyling' : ['A thorough overview on how to style pandas dataframes (conditional highlighting, etc)', r"https://coderzcolumn.com/tutorials/python/simple-guide-to-style-display-of-pandas-dataframes"],
+    'dfstyling' : ['An overview on how to style pandas dataframes (conditional highlighting, etc)', r"https://coderzcolumn.com/tutorials/python/simple-guide-to-style-display-of-pandas-dataframes"],
     'strformat' : ['Real Python: String formatting "Best Practices" (EXCITING!!!;)', r'https://realpython.com/python-string-formatting/']
 }
 example_keys = list(examples_dict.keys())
@@ -107,7 +107,7 @@ Run chromedriver from its current location {exe} (y/[n])? ''').lower() in ['y','
             break
 
     if shutil.which('chromedriver', path = DRIVER_PATH) == None:
-        # print('''\nHmm... Seems like python doesn't recognize it.''')
+
         if input(f'''{paginator}\nShall we try installing chromedriver in your {env_bin} directory ([y]/n)? ''').lower() in ['y','yes','']:
             print(paginator)
             if input(f'''\nGood choice! 
