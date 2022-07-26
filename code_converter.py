@@ -1,4 +1,4 @@
-# 2022.06.19 06:01AM 
+# 2022.07.26 01:47AM 
 
 # Filename: code_converter.ipynb
 # Author: Ben Sprague
@@ -75,6 +75,31 @@ def open_file(path):
     else:
         subprocess.Popen(["xdg-open", path])
 
+def trim(docstring):
+    if not docstring:
+        return ''
+    # Convert tabs to spaces (following the normal Python rules)
+    # and split into a list of lines:
+    lines = docstring.expandtabs().splitlines()
+    # Determine minimum indentation (first line doesn't count):
+    indent = sys.maxsize
+    for line in lines[1:]:
+        stripped = line.lstrip()
+        if stripped:
+            indent = min(indent, len(line) - len(stripped))
+    # Remove indentation (first line is special):
+    trimmed = [lines[0].strip()]
+    if indent < sys.maxsize:
+        for line in lines[1:]:
+            trimmed.append(line[indent:].rstrip())
+    # Strip off trailing and leading blank lines:
+    while trimmed and not trimmed[-1]:
+        trimmed.pop()
+    while trimmed and not trimmed[0]:
+        trimmed.pop(0)
+    # Return a single string:
+    return '\n'.join(trimmed)
+
 #%%
 # WELCOME
 print('''
@@ -100,24 +125,23 @@ Welcome to the "Hacky Inline-Example-Code-To-Notebook" Webscraper!''')
 while os.path.splitext(exe)[0] != DRIVER_PATH:
     print(f'''\nWe recommend having chromedriver installed in your virtual environment bin folder: {env_bin}''')
     if exe:
-        if input(f'''\nYou have chromedriver installed here: {exe}
-
-Run chromedriver from its current location {exe} (y/[n])? ''').lower() in ['y','yes']:
-            print(f"{paginator}\nSounds good! Let's give it a whirl...")
+        print(f"\nYou have chromedriver installed here: {exe}")
+        if input(f'''\nRun chromedriver from its current location? {exe} (y/[n])? ''').lower() in ['y','yes']:
+            print(f"{paginator}\nRunning chromedriver from {exe}")
             break
 
     if shutil.which('chromedriver', path = DRIVER_PATH) == None:
 
-        if input(f'''{paginator}\nShall we try installing chromedriver in your {env_bin} directory ([y]/n)? ''').lower() in ['y','yes','']:
+        if input(f'''{paginator}\nWould you like to install chromedriver in your {env_bin} directory ([y]/n)? ''').lower() in ['y','yes','']:
+            
             print(paginator)
-            if input(f'''\nGood choice! 
+            print("The path to your environment's bin directory is here: ", os.path.join(sys.prefix,bin))
+            
+            if input(trim('''\nIn a moment, we will open a guide to downloading the right version of chrome driver, and we recommend (again) that you download chromedriver into your environment's bin directory
 
-In a second, we'll open up a guide to downloading the right version of chrome driver, and we recommend (again) that you download chromedriver into your environment's bin directory
-
-The path to that directory is here --> {sys.prefix + "/bin"}
-
-To open a guide on installing the correct version of chrome driver, press any key (then enter). Otherwise, just press enter and we will skip right to the downloads page. ''').strip() != "":
+            To open a guide on installing the correct version of chrome driver, press any key (then enter). Otherwise, just press enter and we will skip right to the downloads page. ''')).strip() != "":
                 webbrowser.open("https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
+            
             else:
                 webbrowser.open("https://chromedriver.chromium.org/downloads")
                 
@@ -125,14 +149,16 @@ To open a guide on installing the correct version of chrome driver, press any ke
             print("\nThe download guide can be found here: https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
             print("\nThe url for downloading chromedriver is: https://chromedriver.chromium.org/downloads")
             input(proceed_prompt)
-            temp = input('''\nOnce downloaded, we'll (still) need the path to your chromedriver installation.
+            temp = input(trim('''\nOnce downloaded, we'll (still) need the path to your chromedriver installation.
 
-Though you're free to put it somewhere else, we recommend you put it in you environment's bin directory.
+            Though you're free to put it somewhere else, we recommend you put it in you environment's bin directory.
 
-When you have the chromedriver executable where you want it, paste the path here or press enter to browse for it. 
-''') or None
+            When you have the chromedriver executable where you want it, paste the path here or press enter to browse for it. 
+            ''')) or None
+            
             if temp:
                 DRIVER_PATH = temp
+            
             else: 
                 try:
                     from tkFileDialog import askopenfilenames
@@ -147,9 +173,10 @@ When you have the chromedriver executable where you want it, paste the path here
                 exe = DRIVER_PATH
         else:
             print(paginator)
-            print('''\nWell, chromedriver is a great tool, but downloading it can be a stumbling block. For now, let's try our luck python's built-in parsing library.''')
+            # print('''\nAs an alternative to using selenium and chromedriver, we will attempt to scrape the page using python's built-in parsing library.''')
             # parser = "urllib"
             break
+
 url = input (f"\nWhat is the web address (url) of the page you would like to scrape? (or just press enter choose from a list our examples dictionary) ")
 
 if url == '':
@@ -176,11 +203,10 @@ if input(f'''\nThe default filename for this notebook will be '{output_file}'. W
     output_file = (input("\nGive your file a new name (we'll append the extension): ") or default_filename).split(".ipynb")[0] + ".ipynb"
 
 dir_selection_entry = input(f'''{paginator}\nYour current destination directory is {file_path}
-
-- To keep this as your destination directory, press <ENTER>. 
+\n- To keep this as your destination directory, press <ENTER>. 
 - To open a file browser and select a different directory, type 'cd' (then <ENTER>). 
-- Alternatively, you can paste the absolute path to whichever directory you would like to use (then press <ENTER>) 
-''')
+- Alternatively, you can paste the absolute path to whichever directory you would like to use (then press <ENTER>)
+> ''')
 
 if dir_selection_entry.lower() == 'cd':
     from tkinter import filedialog
@@ -197,29 +223,33 @@ else:
 
     output_file = os.path.join(file_path,output_file)
 
-if input(f'''{paginator}\nHere are your selected filename and page url:
+if input(f'''{paginator}\nBelow are your selected filename and page url:
 
 file path: {output_file}
 source url: {url}
 
-INSTRUCTIONS (tl;dr):
+{paginator}\nINSTRUCTIONS (tl;dr):
 
 In order to scrape this page, you'll need to use the 'Inspect Element' tool to find out which of its HTML tags house code and markdown, respectively. We'll collect these from you to use in compiling your notebook.
 
 In a moment, a webbrowser will open displaying your selected webpage. Before we do that, would you like a bit more detail on how to find html tags (y/[n])? ''').lower() == 'y':
-    input(f'''{paginator}\nINSTRUCTIONS (full-length)
-1. To scrape this notebook, we need to know which HTML tags contain the code and the markdown (text), respectively.
-2. To find out what tags are used to format each type of information (code or text/markdown) on a page, you will need to use the "Inspect Element" tool
-3. To learn how to use Inspect Element, try right-clicking on a code cell when the page opens. Then, from the menu that pops up, open the inspector pane by clicking "Inspect Element".
-4. Once the inspector pane opens (usually in a sidebar), you will see the HTML tag(s) associated with the element you inspected.
-5. If the element you inspect is a code cell, you will probably see a tag like "pre", or "code". Otherwise, you might see "div", "p", "h2", etc. Write down (or remember) this tag.
-6. Repeat this inspection process for every type of element you want to capture, then come back here so we can wrap up the remaining steps and generate your notebook.
-7. Remember these tags, because these HTML tags (e.g. "pre", "code", "p", "h1", "h2", "h3" ...) are what this program will need to know in order to create a jupyter notebook from the webpage.
-8. If you can't figure it out, just take some wild guesses and keep trying until it works. There's no harm whatsoever in running the program multiple times until you get the right tags.
-9. When you're ready, press "Enter" to have selenium open the page so we (you and this program) can each do our part(s) of the data extraction. And don't forget to come back here, after!
 
-PS: Soon, this process after be effortless. Until then, don't hesitate to refer-back to these instructions.
-{proceed_prompt}''')
+    print(paginator)
+    input(trim('''INSTRUCTIONS (full-length)
+
+    1. To scrape this notebook, we need to know which HTML tags contain the code and the markdown (text), respectively.
+    2. To find out what tags are used to format each type of information (code or text/markdown) on a page, you will need to use the "Inspect Element" tool
+    3. To learn how to use Inspect Element, try right-clicking on a code cell when the page opens. Then, from the menu that pops up, open the inspector pane by clicking "Inspect Element".
+    4. Once the inspector pane opens (usually in a sidebar), you will see the HTML tag(s) associated with the element you inspected.
+    5. If the element you inspect is a code cell, you will probably see a tag like "pre", or "code". Otherwise, you might see "div", "p", "h2", etc. Write down (or remember) this tag.
+    6. Repeat this inspection process for every type of element you want to capture, then come back here so we can wrap up the remaining steps and generate your notebook.
+    7. Remember these tags, because these HTML tags (e.g. "pre", "code", "p", "h1", "h2", "h3" ...) are what this program will need to know in order to create a jupyter notebook from the webpage.
+    8. If you can't figure it out, just take some wild guesses and keep trying until it works. There's no harm whatsoever in running the program multiple times until you get the right tags.
+    9. When you're ready, press "Enter" to have selenium open the page so we (you and this program) can each do our part(s) of the data extraction. And don't forget to come back here, after!
+
+    Soon, this process after be effortless. Until then, don't hesitate to refer-back to these instructions.
+    ------------------ Press <ENTER> to continue ------------------
+    '''))
 else:
     print(f"\nOk let's get to it{paginator}")
 
@@ -240,7 +270,8 @@ all_tags = [tag.name for tag in soup.find_all()]
 unique_tags = reduce(dedup, all_tags, tup)[0]
 unique_tags.sort()
 
-input(f'''\nAssuming all has gone according to plan, a browser displaying your selected webpage has been/will be opened on your screen. \n\nIn the final series of prompts, we'll ask you which page sections (as defined by their HTML tags) contain the code, and which contain the markdown. Or, if they're a close match, you can use the defaults. \n{proceed_prompt}''')
+input(f'''\nAssuming all has gone according to plan, a browser displaying your selected webpage has been/will be opened on your screen. \n\nThe final series of prompts will ask you which page sections (as defined by their HTML tags) contain the code, and which contain the markdown. 
+\nIf the page's tags are a close match with this program's default tags, you may choose to proceed without changing anything. \n{proceed_prompt}''')
 print(f'''\nHere, in alphabetical order, are all the tags contained on this page: 
 
 {unique_tags}''')
@@ -250,41 +281,43 @@ md_defaults_overlap = (set(md_tags) & set(unique_tags))
 if input(f'''\nIt looks like this page includes {len(code_defaults_overlap)} of {len(code_tags)} default code tags {code_defaults_overlap} and {len(md_defaults_overlap)} of {len(md_tags)} default markdown tags {md_defaults_overlap}! 
 
 Would you like to try running this on autopilot to see the results? ([y]/n) ''').lower() in ["y","yes",""]:
-        print(f"{paginator}\nGreat! Your notebook (or its enclosing directory) should open momentarily...\n")
-        tag_type=md_tags+code_tags
+    print(f"{paginator}\nGreat! Your notebook (or its enclosing directory) should open momentarily...\n")
+    tag_type=md_tags+code_tags
 
 else:
     code_tags = input("\nWhich tag(s) do you want to scrape for code? ").split(" ") or code_tags
     md_tags = input("\nAnd which do you want to scrape for markdown? ").split(" ") or md_tags               
     tagset_inputs_overlap = (set(code_tags) & set(md_tags))
+    
     if len(tagset_inputs_overlap) == 0:
         attr_key = "Ignore all attributes"
         code_attr = "Ignore all attributes"
         md_attr = "Ignore all attributes"
         tag_type = md_tags + code_tags
     else:
-        print(f'''
-Looks like your lists of markdown and code tags have these tags in common: {tagset_inputs_overlap}. In order to format the notebook correctly, the scraper needs some way of distinguising markdown from code cells.
-The good news is, since they look different from one another on the webpage, they'll also look different in the core. We just have to find how...
+        print("Looks like your lists of markdown and code tags have these tags in common: ", tagset_inputs_overlap, sep="")
+        print(trim('''In order to format the notebook correctly, the scraper needs some way of distinguising markdown from code cells.
+        The good news is, since they look different from one another on the webpage, they'll also look different in the core. We just have to find how...
         
-When code and markdown are stored under the same tags, there are two possible approaches: 
+        When code and markdown are stored under the same tags, there are two possible approaches: 
+        
+        The first is to differentiate code tags from markdown tags by their attributes (usually their "class" attribute), but this can only be done where the matching code- and markdown-containing tags have the same attribute KEY, and different attribute VALUES
+        
+        The second, is to run the scraper with everything but the overlapping tags. 
 
-- The first is to differentiate code tags from markdown tags by their attributes (usually their "class" attribute), but this can only be done where the matching code- and markdown-containing tags have the same attribute KEY, and different attribute VALUES
+        We'll start with the first approach, and the second will be our fallback.
+        '''))
 
-- The second, is to run the scraper with everything but the overlapping tags. 
+        print("Here, again are your overlapping tags: ",tagset_inputs_overlap, sep="")
 
-We'll start with the first approach, and the second will be our fallback.
 
-(Here, again are your overlapping tags: {tagset_inputs_overlap})
-''')
-
-        if input(f'''\nDoes one of the tags have have an attribute whose KEY (e.g. 'class') is the same for markdown and code cells, but whose VALUE is different where sections contain code than where they contain markdown (y/n)?\n''').lower() == "y":
+        if input(f'''\nDoes one of the tags have have an attribute whose KEY (e.g. 'class') is the same for markdown and code cells, but whose VALUE is different where sections contain code than where they contain markdown (y/n)? ''').lower() == "y":
             tag_type = [input('\nWhich one...? ').split(" ")[0]]
             attr_key = input(f'\nWhat attribute key do the code and markdown {tag_type} tags have in-common? ') or attr_key
             code_attr = input(f'\nFor the {tag_type[0]} tags containing CODE, what value is associated with the {attr_key} attribute key? (Default is: "{code_attr}") ') or code_attr
             md_attr = input(f'\nFor the {tag_type[0]} keys containing MARKDOWN, what value is associated with the {attr_key} attribute key? (Default is: "{md_attr}") ') or md_attr
         else:
-            print("No worries! We'll try the second approach run it with everything but the overlapping tags. Your notebook will be ready mementarily")
+            print("Ok. We'll run it with everything but the overlapping tags. Your notebook will be ready mementarily")
 
 #%%
 #RUN
