@@ -3,7 +3,7 @@
 - The script prompts users to install chromedriver if it cannot detect that a) chromedriver is installed and b) in a location the kernel can access 
 
 ## Assumptions
-- The program logic assumes that any provided website's code and markdown sections are differentiable by either a) specific html tags or b) the attributes on those tags
+- The program logic assumes that any provided website's code and markdown sections are differentiable by either a) specific html tags or b) the attributes on their tags
 
 ## Dependencies
 - Selenium
