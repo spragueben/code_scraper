@@ -295,7 +295,7 @@ else:
         md_attr = "Ignore all attributes"
         tag_type = md_tags + code_tags
     else:
-        print("Looks like your lists of markdown and code tags have these tags in common: ", tagset_inputs_overlap, sep="")
+        print("Your lists of markdown and code tags have these tags in common: ", tagset_inputs_overlap, sep="")
         print(trim('''In order to format the notebook correctly, the scraper needs some way of distinguising markdown from code cells.
         The good news is, since they look different from one another on the webpage, they'll also look different in the core. We just have to find how...
         
