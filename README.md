@@ -21,3 +21,4 @@
 ## Future Improvements
 - Assign the necessary metadata to format non-python code cells with the correct language
 - Enable users to elect webdrivers for a variety of browsers
+- LaTeX support
