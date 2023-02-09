@@ -14,7 +14,7 @@
 ## Instructions
 - From the directory containing this script, activate a virtual environment (with bs4, Selenium, and Markdownify installed), then run `python -m ./code_converter.py` in the command prompt. 
 - Input prompts will request a url to scrape
-- In order to identify and differentiate which of the provided webpage's data should be used to populate the code and markdown cells of the outputted notebook, input prompts will request which tags and, where necessary, which attributes should be used to differentiate code sections from markdown sections 
+- In order to identify and differentiate which of the provided webpage's data should be used to populate the code and markdown cells of the outputted notebook, input prompts will request which tags and, where necessary, which attributes should be used to distinguish code sections from markdown sections 
 - If an alternate name is not provided for the notebook, a default filename will be applied
 - If an alternate destination directory in not provided, the notebook will be outputted to the current working directory
 

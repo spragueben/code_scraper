@@ -15,6 +15,7 @@ import platform
 import subprocess
 import webbrowser
 import urllib.request
+import chromedriver_autoinstaller
 
 from tkinter import Tk
 from functools import reduce
@@ -44,7 +45,8 @@ random_selection = example_keys[random.randint(0,len(examples_dict)-1)]
 file_path = os.getcwd()
 exe = shutil.which('chromedriver')
 env_bin = os.path.join(sys.prefix, "bin")
-DRIVER_PATH = os.path.join(env_bin,"chromedriver")
+# DRIVER_PATH = os.path.join(env_bin,"chromedriver")
+chromedriver_autoinstaller.install()
 
 # for html tags and attributes:
 tag_type = ["div"]
@@ -122,60 +124,63 @@ Welcome to the "Hacky Inline-Example-Code-To-Notebook" Webscraper!''')
 #%%
 # PROMPTS
 
-while os.path.splitext(exe)[0] != DRIVER_PATH:
-    print(f'''\nWe recommend having chromedriver installed in your virtual environment bin folder: {env_bin}''')
-    if exe:
-        print(f"\nYou have chromedriver installed here: {exe}")
-        if input(f'''\nRun chromedriver from its current location? {exe} (y/[n])? ''').lower() in ['y','yes']:
-            print(f"{paginator}\nRunning chromedriver from {exe}")
-            break
+# while os.path.splitext(exe)[0] != DRIVER_PATH:
+#     print(f'''\nWe recommend having chromedriver installed in your virtual environment bin folder: {env_bin}''')
+#     if exe:
+#         print(f"\nYou have chromedriver installed here: {exe}")
+#         if input(f'''\nRun chromedriver from its current location? {exe} (y/[n])? ''').lower() in ['y','yes']:
+#             print(f"{paginator}\nRunning chromedriver from {exe}")
+#             break
 
-    if shutil.which('chromedriver', path = DRIVER_PATH) == None:
+#     if shutil.which('chromedriver', path = DRIVER_PATH) == None:
 
-        if input(f'''{paginator}\nWould you like to install chromedriver in your {env_bin} directory ([y]/n)? ''').lower() in ['y','yes','']:
+#         if input(f'''{paginator}\nWould you like to install chromedriver in your {env_bin} directory ([y]/n)? ''').lower() in ['y','yes','']:
             
-            print(paginator)
-            print("The path to your environment's bin directory is here: ", os.path.join(sys.prefix,bin))
+#             print(paginator)
+#             DRIVER_PATH = os.path.join(sys.prefix,'bin')
+#             # print("Chromedriver will be installed here your environment's bin directory: ", os.path.join(sys.prefix,'bin'))
+#             print("Chromedriver will be installed here your environment's bin directory: ", DRIVER_PATH)
+#             chromedriver_autoinstaller.install()
             
-            if input(trim('''\nIn a moment, we will open a guide to downloading the right version of chrome driver, and we recommend (again) that you download chromedriver into your environment's bin directory
+#             if trim(input('''\nIn a moment, we will open a guide to downloading the right version of chrome driver, and we recommend (again) that you download chromedriver into your environment's bin directory
 
-            To open a guide on installing the correct version of chrome driver, press any key (then enter). Otherwise, just press enter and we will skip right to the downloads page. ''')).strip() != "":
-                webbrowser.open("https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
+# To open a guide on installing the correct version of chrome driver, press any key (then enter). Otherwise, just press enter and we will skip right to the downloads page. ''')).strip() != "":
+#                 webbrowser.open("https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
             
-            else:
-                webbrowser.open("https://chromedriver.chromium.org/downloads")
+#             else:
+#                 webbrowser.open("https://chromedriver.chromium.org/downloads")
                 
-            print(paginator)
-            print("\nThe download guide can be found here: https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
-            print("\nThe url for downloading chromedriver is: https://chromedriver.chromium.org/downloads")
-            input(proceed_prompt)
-            temp = input(trim('''\nOnce downloaded, we'll (still) need the path to your chromedriver installation.
+#             print(paginator)
+#             print("\nThe download guide can be found here: https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
+#             print("\nThe url for downloading chromedriver is: https://chromedriver.chromium.org/downloads")
+#             input(proceed_prompt)
+#             temp = input(trim('''\nOnce downloaded, we'll (still) need the path to your chromedriver installation.
 
-            Though you're free to put it somewhere else, we recommend you put it in you environment's bin directory.
+#             Though you're free to put it somewhere else, we recommend you put it in you environment's bin directory.
 
-            When you have the chromedriver executable where you want it, paste the path here or press enter to browse for it. 
-            ''')) or None
+#             When you have the chromedriver executable where you want it, paste the path here or press enter to browse for it. 
+#             ''')) or None
             
-            if temp:
-                DRIVER_PATH = temp
+#             if temp:
+#                 DRIVER_PATH = temp
             
-            else: 
-                try:
-                    from tkFileDialog import askopenfilenames
-                except:
-                    from tkinter import filedialog
+#             else: 
+#                 try:
+#                     from tkFileDialog import askopenfilenames
+#                 except:
+#                     from tkinter import filedialog
 
-                Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-                filenames = filedialog.askopenfilenames() # show an "Open" dialog box and return the path to the selected file
+#                 Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+#                 filenames = filedialog.askopenfilenames() # show an "Open" dialog box and return the path to the selected file
 
-                DRIVER_PATH = filenames
-                input(proceed_prompt)
-                exe = DRIVER_PATH
-        else:
-            print(paginator)
-            # print('''\nAs an alternative to using selenium and chromedriver, we will attempt to scrape the page using python's built-in parsing library.''')
-            # parser = "urllib"
-            break
+#                 DRIVER_PATH = filenames
+#                 input(proceed_prompt)
+#                 exe = DRIVER_PATH
+        # else:
+        #     print(paginator)
+        #     # print('''\nAs an alternative to using selenium and chromedriver, we will attempt to scrape the page using python's built-in parsing library.''')
+        #     # parser = "urllib"
+        #     break
 
 url = input (f"\nWhat is the web address (url) of the page you would like to scrape? (or just press enter choose from a list our examples dictionary) ")
 
@@ -254,7 +259,8 @@ else:
     print(f"\nOk let's get to it{paginator}")
 
 try:
-    driver = webdriver.Chrome(executable_path = DRIVER_PATH)
+    # driver = webdriver.Chrome(executable_path = DRIVER_PATH)
+    driver = webdriver.Chrome()
     driver.get(url)
     soup = BeautifulSoup(driver.page_source, features='lxml')
 except:
