@@ -258,19 +258,38 @@ In a moment, a webbrowser will open displaying your selected webpage. Before we 
 else:
     print(f"\nOk let's get to it{paginator}")
 
-try:
-    # driver = webdriver.Chrome(executable_path = DRIVER_PATH)
-    driver = webdriver.Chrome()
-    driver.get(url)
-    soup = BeautifulSoup(driver.page_source, features='lxml')
-except:
+# try:
+#     # driver = webdriver.Chrome(executable_path = DRIVER_PATH)
+#     driver = webdriver.Chrome()
+#     driver.get(url)
+#     soup = BeautifulSoup(driver.page_source, features='lxml')
+# except:
+#     try:
+#         response = urllib.request.urlopen(url)
+#         text = response.read()
+#         soup = BeautifulSoup(text, 'lxml')
+#         webbrowser.open(url)
+#     except:
+#         print(f"Looks like urllib doesn't have the juice. Please install chromedriver in your {env_bin} directory.")
+
+if os.path.isfile(url):
+    with open(url, 'r') as f:
+        content = f.read()
+        soup = BeautifulSoup(content, 'lxml')
+else:
     try:
-        response = urllib.request.urlopen(url)
-        text = response.read()
-        soup = BeautifulSoup(text, 'lxml')
-        webbrowser.open(url)
+        driver = webdriver.Chrome()
+        driver.get(url)
+        soup = BeautifulSoup(driver.page_source, features='lxml')
+        driver.quit()
     except:
-        print(f"Looks like urllib doesn't have the juice. Please install chromedriver in your {env_bin} directory.")
+        try:
+            response = urllib.request.urlopen(url)
+            text = response.read()
+            soup = BeautifulSoup(text, 'lxml')
+            webbrowser.open(url)
+        except:
+            print(f"Looks like there was an issue with the URL: {url}")
 
 all_tags = [tag.name for tag in soup.find_all()]
 unique_tags = reduce(dedup, all_tags, tup)[0]
@@ -399,6 +418,6 @@ if headings != toc_tags:
 
 open(output_file, 'w').write(json.dumps(dictionary))
 
-driver.quit()
+# driver.quit()
 
 open_file(output_file)
