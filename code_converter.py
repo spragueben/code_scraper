@@ -1,4 +1,4 @@
-# 2022.07.26 01:47AM 
+# 2023.09.26 09:45PM
 
 # Filename: code_converter.ipynb
 # Author: Ben Sprague
@@ -9,6 +9,7 @@ import os
 import re
 import sys
 import json
+import string
 import random
 import shutil
 import platform
@@ -45,13 +46,12 @@ random_selection = example_keys[random.randint(0,len(examples_dict)-1)]
 file_path = os.getcwd()
 exe = shutil.which('chromedriver')
 env_bin = os.path.join(sys.prefix, "bin")
-# DRIVER_PATH = os.path.join(env_bin,"chromedriver")
 chromedriver_autoinstaller.install()
 
 # for html tags and attributes:
 tag_type = ["div"]
 code_tags = ["pre"]
-md_tags = ["p","h1","h2","h3"]
+md_tags = ["p","h1","h2","h3","h4"]
 tags_qty = len(code_tags)+len(md_tags)
 attr_key = "Ignore all attributes"
 code_attr = "input_area"
@@ -121,67 +121,6 @@ print('''
 
 Welcome to the "Hacky Inline-Example-Code-To-Notebook" Webscraper!''')
 
-#%%
-# PROMPTS
-
-# while os.path.splitext(exe)[0] != DRIVER_PATH:
-#     print(f'''\nWe recommend having chromedriver installed in your virtual environment bin folder: {env_bin}''')
-#     if exe:
-#         print(f"\nYou have chromedriver installed here: {exe}")
-#         if input(f'''\nRun chromedriver from its current location? {exe} (y/[n])? ''').lower() in ['y','yes']:
-#             print(f"{paginator}\nRunning chromedriver from {exe}")
-#             break
-
-#     if shutil.which('chromedriver', path = DRIVER_PATH) == None:
-
-#         if input(f'''{paginator}\nWould you like to install chromedriver in your {env_bin} directory ([y]/n)? ''').lower() in ['y','yes','']:
-            
-#             print(paginator)
-#             DRIVER_PATH = os.path.join(sys.prefix,'bin')
-#             # print("Chromedriver will be installed here your environment's bin directory: ", os.path.join(sys.prefix,'bin'))
-#             print("Chromedriver will be installed here your environment's bin directory: ", DRIVER_PATH)
-#             chromedriver_autoinstaller.install()
-            
-#             if trim(input('''\nIn a moment, we will open a guide to downloading the right version of chrome driver, and we recommend (again) that you download chromedriver into your environment's bin directory
-
-# To open a guide on installing the correct version of chrome driver, press any key (then enter). Otherwise, just press enter and we will skip right to the downloads page. ''')).strip() != "":
-#                 webbrowser.open("https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
-            
-#             else:
-#                 webbrowser.open("https://chromedriver.chromium.org/downloads")
-                
-#             print(paginator)
-#             print("\nThe download guide can be found here: https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection")
-#             print("\nThe url for downloading chromedriver is: https://chromedriver.chromium.org/downloads")
-#             input(proceed_prompt)
-#             temp = input(trim('''\nOnce downloaded, we'll (still) need the path to your chromedriver installation.
-
-#             Though you're free to put it somewhere else, we recommend you put it in you environment's bin directory.
-
-#             When you have the chromedriver executable where you want it, paste the path here or press enter to browse for it. 
-#             ''')) or None
-            
-#             if temp:
-#                 DRIVER_PATH = temp
-            
-#             else: 
-#                 try:
-#                     from tkFileDialog import askopenfilenames
-#                 except:
-#                     from tkinter import filedialog
-
-#                 Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-#                 filenames = filedialog.askopenfilenames() # show an "Open" dialog box and return the path to the selected file
-
-#                 DRIVER_PATH = filenames
-#                 input(proceed_prompt)
-#                 exe = DRIVER_PATH
-        # else:
-        #     print(paginator)
-        #     # print('''\nAs an alternative to using selenium and chromedriver, we will attempt to scrape the page using python's built-in parsing library.''')
-        #     # parser = "urllib"
-        #     break
-
 url = input (f"\nWhat is the web address (url) of the page you would like to scrape? (or just press enter choose from a list our examples dictionary) ")
 
 if url == '':
@@ -223,10 +162,10 @@ else:
 print(paginator)
 if input('Would you like have the current date and time prepended to your filename ([y]/n)? ').lower() in ["y","yes",""]:
     timestamp = datetime.now().strftime('%Y.%m.%d-%H%Mh')
-    output_file = os.path.join(file_path,timestamp+output_file)
+    output_file = os.path.join( file_path, timestamp + '-' + output_file)
 else:
 
-    output_file = os.path.join(file_path,output_file)
+    output_file = os.path.join( file_path, output_file)
 
 if input(f'''{paginator}\nBelow are your selected filename and page url:
 
@@ -258,30 +197,18 @@ In a moment, a webbrowser will open displaying your selected webpage. Before we 
 else:
     print(f"\nOk let's get to it{paginator}")
 
-# try:
-#     # driver = webdriver.Chrome(executable_path = DRIVER_PATH)
-#     driver = webdriver.Chrome()
-#     driver.get(url)
-#     soup = BeautifulSoup(driver.page_source, features='lxml')
-# except:
-#     try:
-#         response = urllib.request.urlopen(url)
-#         text = response.read()
-#         soup = BeautifulSoup(text, 'lxml')
-#         webbrowser.open(url)
-#     except:
-#         print(f"Looks like urllib doesn't have the juice. Please install chromedriver in your {env_bin} directory.")
-
 if os.path.isfile(url):
     with open(url, 'r') as f:
         content = f.read()
         soup = BeautifulSoup(content, 'lxml')
+    # Append the file protocol to the URL
+    if not url.startswith('file://'):
+        url = 'file://' + url
 else:
     try:
         driver = webdriver.Chrome()
         driver.get(url)
         soup = BeautifulSoup(driver.page_source, features='lxml')
-        driver.quit()
     except:
         try:
             response = urllib.request.urlopen(url)
@@ -290,6 +217,7 @@ else:
             webbrowser.open(url)
         except:
             print(f"Looks like there was an issue with the URL: {url}")
+
 
 all_tags = [tag.name for tag in soup.find_all()]
 unique_tags = reduce(dedup, all_tags, tup)[0]
@@ -336,7 +264,7 @@ else:
         print("Here, again are your overlapping tags: ",tagset_inputs_overlap, sep="")
 
 
-        if input(f'''\nDoes one of the tags have have an attribute whose KEY (e.g. 'class') is the same for markdown and code cells, but whose VALUE is different where sections contain code than where they contain markdown (y/n)? ''').lower() == "y":
+        if input(f'''\Is there any html tag (eg 'div', 'p', etc.) that a) is present in both markdown and code-type sections, and b) has an attribute (e.g. 'class') whose value in the code sections is different from its value in the text/markdown sections (y/n)? ''').lower() == "y":
             tag_type = [input('\nWhich one...? ').split(" ")[0]]
             attr_key = input(f'\nWhat attribute key do the code and markdown {tag_type} tags have in-common? ') or attr_key
             code_attr = input(f'\nFor the {tag_type[0]} tags containing CODE, what value is associated with the {attr_key} attribute key? (Default is: "{code_attr}") ') or code_attr
@@ -347,11 +275,13 @@ else:
 #%%
 #RUN
 
-dictionary = {'nbformat': 4, 'nbformat_minor': 1, 'cells': [{"metadata":{},"source":f"<a id='top'></a><h3>The data in this notebook came from:</h3>\n\n{url}", "cell_type":"markdown"}], 'metadata': {}}
+# dictionary = {'nbformat': 4, 'nbformat_minor': 1, 'cells': [{"metadata":{},"source":f"<a id='top'></a><h4>The data in this notebook came from:</h4>\n\n<a href='{url}'>{url}</a>", "cell_type":"markdown"}], 'metadata': {}} # anchor in markdown format
+dictionary = {'nbformat': 4, 'nbformat_minor': 1, 'cells': [{"metadata":{},"source":f"# The data in this notebook came from:\n# {url}", "cell_type":"code"}], 'metadata': {}}
+
 toc_tags = ["<UL>","</UL>"]
 headings = [toc_tags[0]]
 hdg_init_len = len(headings)
-toc_heading = {"metadata":{},'cell_type':'markdown','source':'### <a id="table-of-contents"></a> Table of Contents (Generated)'}
+toc_heading = {"metadata":{},'cell_type':'markdown','source':'#### <a id="table-of-contents"></a> Table of Contents (Generated)'}
 insert_at = 1
 
 def add_cell(target, cell_type, content):
@@ -366,6 +296,37 @@ def add_cell(target, cell_type, content):
     cell['cell_type'] = cell_type
     target['cells'].append(cell)
 
+def extract_first_sentence(text):
+    pattern = re.compile(r'(.*?[.?:-]+)\s')
+    match = pattern.search(text)
+    if match:
+        first_sentence = match.group(1)
+        rest_of_text = text[len(first_sentence):].strip()
+    else:
+        first_sentence = text
+        rest_of_text = ""
+    return first_sentence, rest_of_text
+
+def clean_text(text):
+    return re.sub(f'[{string.punctuation}]', '', text)
+
+# def process_markdown(content):
+#     headings = []
+#     for d in content:
+#         val = int(re.search("[0-9]+", d.name).group())
+#         if val <= 2:
+#             headings.append(f"</UL><LI><a href='#{ct}'>{content}&nbsp</a></OL><UL>")        
+#         else:
+#             first_sentence, rest_of_text = extract_first_sentence(content)
+#             ct = re.sub("\s+","-",first_sentence.strip())
+#             headings.append(f"<LI><a href='#{ct}'>{first_sentence}&nbsp</a>")
+#             if rest_of_text:
+#                 indented_text = "\n".join([f"    {line}" for line in rest_of_text.splitlines()])
+#                 content = [f"<a id='{ct}' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>\n\n- {indented_text}"]
+#             else:
+#                 content = [f"<a id='{ct}' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>"]
+#     return "\n".join(headings)
+
 for d in soup.findAll(tag_type):
     if attr_key in d.attrs.keys():
         for clas in d.attrs[attr_key]:
@@ -378,11 +339,12 @@ for d in soup.findAll(tag_type):
                     add_cell(dictionary,'markdown',content)
     else:
         if d.name in code_tags: #include and exclude
-            content = [re.sub(r'(\n\n\n+)', r"\n\n",d.get_text()).strip()]
+            content = [re.sub(r'(\n\n\n+)', r"\n\n",d.get_text()).strip()] 
             add_cell(dictionary,'code',content)
 
         elif d.name in md_tags:
-            content = md(d.decode_contents()).strip()
+            # content = md(d.decode_contents()).strip()
+            content = md(d.decode_contents())
             if not len(content) == 0: 
                 if len(d.name) == 2 and d.name[0]=='h' and d.name[1].isdigit():                  # If the tag is Heading tag, i.e., 'h1' or 'h2'
                     ct = len(headings)
@@ -399,13 +361,37 @@ for d in soup.findAll(tag_type):
                     else:
                         content = pattern.search(content).group(1)
                     
-                    ct = re.sub("\s+","-",content.strip())
+                    ct = re.sub("\s+","-",content.strip()) 
+                    # ct = re.sub("\s+","-",content)                                             # removes 'strip()' from version in previous line
+
                     if val <= 2:
                         headings.append(f"</UL><LI><a href='#{ct}'>{content}&nbsp</a></OL><UL>")        
                     else:
-                        headings.append(f"<LI><a href='#{ct}'>{content}&nbsp</a>")
+                        first_sentence, rest_of_text = extract_first_sentence(content)
+                        # ct = re.sub("\s+","-",clean_text(first_sentence.strip()))
+                        ct = re.sub("\s+","-",first_sentence.strip())
+                        
+                        ct = clean_text(ct)
+                       
+                        headings.append(f"<LI><a href='#{ct}'>{first_sentence}&nbsp</a>")
+                        lines = rest_of_text.splitlines()
 
-                    content = [f"<a id='{ct}' href='#top'><{d.name}>[{content}](#top)</{d.name}></a>"]
+
+                        if rest_of_text.strip():  # Check if `rest_of_text` is not empty
+                            content = [f"<a id='{ct}' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>\n\n"]
+                            content.append("    - ")
+                            for i, line in enumerate(lines):
+                                if line.strip():
+                                    if i == len(lines) - 1:
+                                        # content.append(f"    - {line}\n")
+                                        content.append(f"{line}")
+                                    else:
+                                        # content.append(f"    - {line}\n")
+                                        content.append(f"{line}\n    ")
+
+                            content = "".join(content)
+                        else:
+                            content = f"<a id='{ct}' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>\n\n"
 
                 add_cell(dictionary,'markdown',content)
 
@@ -418,6 +404,7 @@ if headings != toc_tags:
 
 open(output_file, 'w').write(json.dumps(dictionary))
 
-# driver.quit()
+if 'driver' in locals() or 'driver' in globals():
+    driver.quit()
 
 open_file(output_file)
