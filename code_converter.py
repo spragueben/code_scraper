@@ -275,22 +275,28 @@ else:
 
 #%%
 #RUN
-
-# dictionary = {'nbformat': 4, 'nbformat_minor': 1, 'cells': [{"metadata":{},"source":f"<a id='top'></a><h4>The data in this notebook came from:</h4>\n\n<a href='{url}'>{url}</a>", "cell_type":"markdown"}], 'metadata': {}} # anchor in markdown format
-dictionary = {'nbformat': 4, 'nbformat_minor': 1, 'cells': [{"metadata":{},"source":[f"# The data in this notebook came from:\n# {url}"], "cell_type":"code", "outputs": [], "execution_count": None},], 
-    'metadata': {"celltoolbar":
-        [{
-            "name": "Collapsible Headings",
-            "icon": "fa-caret-square-down",
-            "callback": "function toggle() {\n  var ele = this.parentNode.parentNode.nextElementSibling;\n  ele.style.display = (ele.style.display == 'block') ? 'none' : 'block';\n}\nvar headers = document.getElementsByClassName(\"heading\");\nfor (var i = 0; i < headers.length; i++) {\n  headers[i].addEventListener(\"click\", toggle);\n}",
-            "index": 0 
-        }]}}
+dictionary = {  'nbformat': 4, 
+                'nbformat_minor': 1, 
+                'cells': [
+                    { 
+                        "metadata":{},"cell_type":"code", "source":[f"# The data in this notebook came from:\n# {url}"],  "outputs": [], "execution_count": None 
+                    },
+                    {
+                        "metadata":{},"cell_type":"markdown","source":["#### Run the code cell below to generate a table of contents"]
+                    }
+                ], 
+                'metadata': {"celltoolbar":
+                    [{
+                        "name": "Collapsible Headings",
+                        "icon": "fa-caret-square-down",
+                        "callback": "function toggle() {\n  var ele = this.parentNode.parentNode.nextElementSibling;\n  ele.style.display = (ele.style.display == 'block') ? 'none' : 'block';\n}\nvar headers = document.getElementsByClassName(\"heading\");\nfor (var i = 0; i < headers.length; i++) {\n  headers[i].addEventListener(\"click\", toggle);\n}",
+                        "index": 0 
+                    }]}}
 
 toc_tags = ["<UL>","</UL>"]
 headings = [toc_tags[0]]
 hdg_init_len = len(headings)
 toc_heading = {"metadata":{},'cell_type':'markdown','source':[]}
-
 
 def add_cell(target, cell_type, content):
     cell = {}
@@ -324,23 +330,6 @@ def hash_series(n):
         result += "#"
     return result
 
-# def process_markdown(content):
-#     headings = []
-#     for d in content:
-#         val = int(re.search("[0-9]+", d.name).group())
-#         if val <= 2:
-#             headings.append(f"</UL><LI><a href='#{ct}'>{content}&nbsp</a></OL><UL>")        
-#         else:
-#             first_sentence, rest_of_text = extract_first_sentence(content)
-#             ct = re.sub("\s+","-",first_sentence.strip())
-#             headings.append(f"<LI><a href='#{ct}'>{first_sentence}&nbsp</a>")
-#             if rest_of_text:
-#                 indented_text = "\n".join([f"    {line}" for line in rest_of_text.splitlines()])
-#                 content = [f"<a id='{ct}' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>\n\n- {indented_text}"]
-#             else:
-#                 content = [f"<a id='{ct}' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>"]
-#     return "\n".join(headings)\
-
 def encode_link_text(text):
     return html.escape(text)
 
@@ -358,109 +347,7 @@ for d in soup.findAll(tag_type):
         if d.name in code_tags: #include and exclude
             content = [re.sub(r'(\n\n\n+)', r"\n\n",d.get_text()).strip()] 
             add_cell(dictionary,'code',content)
-
-        # # elif d.name in md_tags:
-        # #     # content = md(d.decode_contents()).strip()
-        # #     content = md(d.decode_contents())
-        # #     if not len(content) == 0: 
-        # #         # process_markdown(content)
-        # #         if len(d.name) == 2 and d.name[0]=='h' and d.name[1].isdigit():                  # If the tag is Heading tag, i.e., 'h1' or 'h2'
-        # #             ct = len(headings)
-        # #             val = int(d.name[1])
-
-        # #             # Pattern below is used to find any existing TOC target link   
-        # #             pattern = re.compile(r'''\[([^][]+)\]''')
-
-        # #             # alt_content pattern below is used to substitute markdown links 
-        # #             alt_content = re.sub(r'(?:__|[*#])|\[(.*?)\]\(.*?\)',"", content) or ""      # Removes markdown links
-
-        # #             if alt_content != "":                                                        # Use alt_content version if alt is not empty
-        # #                 content = alt_content
-        # #             else:
-        # #                 content = pattern.search(content).group(1)
-        # #             # ct = re.sub("\s+","-",content.strip()) 
-        # #             ct = re.sub("\s+","-",content.strip()) 
-        # #             # ct = re.sub("\s+","-",content)                                             # removes 'strip()' from version in previous line
-
-        # #             if val <= 2:
-        # #                 headings.append(f"</UL><LI><a href='#{ct}'>{content}&nbsp</a></OL><UL>")        
-        # #             else:
-        # #                 first_sentence, rest_of_text = extract_first_sentence(content)
-        # #                 first_sentence = encode_link_text(first_sentence)
-        # #                 ct = re.sub("\s+","-",clean_text(first_sentence.strip()))
-        # #                 # ct = re.sub("\s+","-",first_sentence.strip())
-                        
-        # #                 # ct = clean_text(ct)
-                       
-        # #                 headings.append(f"<LI><a href='#{ct}'>{first_sentence}&nbsp</a>")
-        # #                 lines = rest_of_text.splitlines()
-
-        # #                 hashes = hash_series(val)
-
-        # #                 if rest_of_text.strip():  # Check if `rest_of_text` is not empty
-        # #                     # content = [f"<a id='{ct}' class='heading' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>\n\n"]
-        # #                     content = [f"{hashes} [{first_sentence}](#top)<a id='{ct}' class='heading'></a>"]
-        # #                     # content = [f"{hashes} [{first_sentence+' '}](#top)<a id='{ct}' class='heading'></a>"]
-        # #                     content.append("    - ")
-        # #                     for i, line in enumerate(lines):
-        # #                         if line.strip():
-        # #                             if i == len(lines) - 1:
-        # #                                 # content.append(f"    - {line}\n")
-        # #                                 content.append(f"{line}")
-        # #                             else:
-        # #                                 # content.append(f"    - {line}\n")
-        # #                                 content.append(f"{line}\n    ")
-
-        # #                     content = "".join(content)
-        # #                 else:
-        # #                     # content = f"<a id='{ct}' class='heading' href='#top'><{d.name}>[{first_sentence}](#top)</{d.name}></a>\n\n"
-        # #                     content = f"{hashes} [{first_sentence}](#top)<a id='{ct}' class='heading'></a>"
-        # #                     # content = f"{hashes} [{first_sentence+ ' '}](#top)<a id='{ct}' class='heading'></a>"
-        # #                     print(content)
-
-        # #         add_cell(dictionary,'markdown',content)
-
-        # elif d.name in md_tags:
-        #     content = md(d.decode_contents())
-        #     if not len(content) == 0: 
-        #         if len(d.name) == 2 and d.name[0]=='h' and d.name[1].isdigit():                  # If the tag is Heading tag, i.e., 'h1' or 'h2'
-        #             val = int(d.name[1])
-        #             pattern = re.compile(r'''\[([^][]+)\]''')
-        #             alt_content = re.sub(r'(?:__|[*#])|\[(.*?)\]\(.*?\)',"", content) or ""      # Removes markdown links
-        #             if alt_content != "":                                                        # Use alt_content version if alt is not empty
-        #                 content = alt_content
-        #             else:
-        #                 content = pattern.search(content).group(1)
-        #             ct = re.sub(f"[{string.punctuation}]", '', content.strip())
-        #             ct = re.sub("\s+", "-", ct)
-        #             ct = ct.rstrip("-")
-
-        #             if val <= 2:
-        #                 headings.append(f"</UL><LI><a href='#{ct}'>{content}&nbsp</a></OL><UL>")        
-        #             else:
-        #                 first_sentence, rest_of_text = extract_first_sentence(content)
-        #                 first_sentence = encode_link_text(first_sentence)
-        #                 ct_first_sentence = re.sub(f"[{string.punctuation}]", '', first_sentence.strip())
-        #                 ct_first_sentence = re.sub("\s+", "-", ct_first_sentence)
-        #                 ct_first_sentence = ct_first_sentence.rstrip("-")
-
-        #                 headings.append(f"<LI><a href='#{ct_first_sentence}'>{first_sentence}&nbsp</a>")
-        #                 lines = rest_of_text.strip().splitlines()
-        #                 hashes = hash_series(val)
-        #                 if lines:  # Check if `rest_of_text` is not empty
-        #                     content = [f"{hashes} [{first_sentence}](#top)<a id='{ct_first_sentence}' class='heading'></a>"]
-        #                     content.append("    - ")
-        #                     for i, line in enumerate(lines):
-        #                         if line.strip():
-        #                             if i == len(lines) - 1:
-        #                                 content.append(f"{line}")
-        #                             else:
-        #                                 content.append(f"{line}\n    ")
-        #                     content = "".join(content)
-        #                 else:
-        #                     content = f"{hashes} [{first_sentence}](#top)<a id='{ct_first_sentence}' class='heading'></a>"
-        #         add_cell(dictionary,'markdown',content)
-
+            
         elif d.name in md_tags:
             content = md(d.decode_contents())
             if not len(content) == 0: 
@@ -482,25 +369,24 @@ for d in soup.findAll(tag_type):
                     ct = re.sub(r'\s+', '-', first_sentence)                                     # Substitutes spaces with hyphens BEFORE an additional whitespace is appended to 'first_sentence'
                     first_sentence = first_sentence + " "
                     if val <= 2:
-                        headings.append(f"</UL><LI><a href='#{ct}'>{first_sentence}&nbsp</a></OL><UL>")        
+                        headings.append(f"</UL><LI><a href='#{ct}'>{first_sentence}&nbsp</a></OL><UL>")     
                     else:
                         headings.append(f"<LI><a href='#{ct}'>{first_sentence}&nbsp</a>")
-                        lines = rest_of_text.splitlines()
-                        hashes = hash_series(val)
-                        if rest_of_text.strip():  # Check if `rest_of_text` is not empty
-                            content = [f"{hashes} [{first_sentence}](#top)<a id='{ct}' class='heading'></a>"]
-                            content.append("    - ")
-                            for i, line in enumerate(lines):
-                                if line.strip():
-                                    if i == len(lines) - 1:
-                                        content.append(f"{line}")
-                                    else:
-                                        content.append(f"{line}\n    ")
-                            content = "".join(content)
-                        else:
-                            content = f"{hashes} [{first_sentence}](#top)<a id='{ct}' class='heading'></a>"
+                    lines = rest_of_text.splitlines()
+                    hashes = hash_series(val)
+                    if rest_of_text.strip():  # Check if `rest_of_text` is not empty
+                        content = [f"{hashes} [{first_sentence}](#top)<a id='{ct}' class='heading'></a>"]
+                        content.append("    - ")
+                        for i, line in enumerate(lines):
+                            if line.strip():
+                                if i == len(lines) - 1:
+                                    content.append(f"{line}")
+                                else:
+                                    content.append(f"{line}\n    ")
+                        content = "".join(content)
+                    else:
+                        content = f"{hashes} [{first_sentence}](#top)<a id='{ct}' class='heading'></a>"
                 add_cell(dictionary,'markdown',content) 
-
 
 headings.append(toc_tags[1])
 # toc_body = {"metadata":{},'cell_type':'markdown','source':f'{"".join(headings[1:-1])}'}
@@ -515,9 +401,9 @@ toc_cell = {"metadata":{},"source":[
                 "    pattern = re.compile(r\"(<a href=['\\\"])(#[^'\\\"]+)(['\\\"])\")\n", 
                 "    html = re.sub(pattern, r'\\1\\2{}\\3'.format(hyphen), html)\n", 
                 "    return html\n",
-                "# 'Hide Toggle' function code from this brilliant stackoverflow post: https://stackoverflow.com/a/52664156/19246680\n",
-                "def hide_toggle():\n",
-                f'    html = "<a><h3 id=\'top\'>Table of Contents</h3></a>{toc_body}"\n', 
+                "# show/hide toggle functionality adapted from this brilliant stackoverflow post: https://stackoverflow.com/a/52664156/19246680\n",
+                "def display_toc():\n",
+                f'    html = "<a><h3 id=\'top\'>Table of Contents</h3><br></a>{toc_body}"\n', 
                 "    toggle_text = 'Toggle show/hide'  # text shown on toggle link\n",
                 "\n",
                 "    js_f_name = 'code_toggle_{}'.format(str(random.randint(1,2**64)))\n",
@@ -533,11 +419,11 @@ toc_cell = {"metadata":{},"source":[
                 "        )\n",
                 "\n",
                 "    return HTML(html)\n",
-                "hide_toggle()"]
+                "display_toc()"]
                 , "cell_type":"code", "outputs": [], "execution_count": None}
 
 if headings != toc_tags:
-    dictionary['cells'].insert(1,toc_cell)
+    dictionary['cells'].insert(2,toc_cell)
     # dictionary['cells'].insert(1,toc_heading)
 
 open(output_file, 'w').write(json.dumps(dictionary))
