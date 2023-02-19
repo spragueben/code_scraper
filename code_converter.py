@@ -311,7 +311,6 @@ def add_cell(target, cell_type, content):
     target['cells'].append(cell)
 
 def extract_first_sentence(text):
-    # pattern = re.compile(r'(.*?[.?:-]+)\s')
     pattern = re.compile(r'(\S{4,}.*?[.?:-]+)\s')
     match = pattern.search(text)
     if match:
@@ -390,7 +389,6 @@ for d in soup.findAll(tag_type):
                 add_cell(dictionary,'markdown',content) 
 
 headings.append(toc_tags[1])
-# toc_body = {"metadata":{},'cell_type':'markdown','source':f'{"".join(headings[1:-1])}'}
 toc_body = f'{"".join(headings[1:-1])}'
 toc_cell = {"metadata":{},"source":[
                 "from IPython.display import HTML\n",
@@ -425,7 +423,6 @@ toc_cell = {"metadata":{},"source":[
 
 if headings != toc_tags:
     dictionary['cells'].insert(2,toc_cell)
-    # dictionary['cells'].insert(1,toc_heading)
 
 open(output_file, 'w').write(json.dumps(dictionary))
 
