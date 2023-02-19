@@ -311,7 +311,8 @@ def add_cell(target, cell_type, content):
     target['cells'].append(cell)
 
 def extract_first_sentence(text):
-    pattern = re.compile(r'(.*?[.?:-]+)\s')
+    # pattern = re.compile(r'(.*?[.?:-]+)\s')
+    pattern = re.compile(r'(\S{4,}.*?[.?:-]+)\s')
     match = pattern.search(text)
     if match:
         first_sentence = match.group(1)
